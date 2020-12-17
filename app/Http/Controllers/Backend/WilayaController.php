@@ -41,13 +41,15 @@ class WilayaController extends BackendBaseController
             'list_services' => $this->repositories['ServiceRepository']->all()
         ];
 
-        return view('backend.rubrics.wilayas.index', compact($data));
+        return view($this->base_view . 'index', ['data' => $data]);
     }
     /**
      * Change price for a wilaya
      */
     public function changePrice(Request $request, $id) {
-        $status = $this->repository->find($id)->update(['price' => $request->price]);
+        $wilaya = $this->repository->find($id);
+        $wilaya->price = $request->price;
+        $status = $wilaya->save();
 
         if($status){
             return response()->json([
@@ -65,24 +67,39 @@ class WilayaController extends BackendBaseController
     }
 
     /**
+     * Set a wilaya (available/non available) for delivery
+     */
+    public function toggleAvailablity(Request $request, $id) {
+        $wilaya = $this->repository->find($id);
+        $wilaya->availability = $request->availability;
+        $status = $wilaya->save();
+
+        if($status){
+            return response()->json([
+                'success' => true,
+                'message' => trans('notifications.availability_changed'),
+                'newStatus' => $request->availability
+            ]);
+        }
+        else{
+            return response()->json([
+                'success' => false,
+                'message' => trans('notifications.error_occured')
+            ]);
+        }
+    }
+
+    /**
      * Add service to wilaya
      */
     public function addService(Request $request, $id) {
         $wilaya = $this->repository->find($id);
         $status = $wilaya->services()->attach($request->service_id);
 
-        if($status){
-            return response()->json([
-                'success' => true,
-                'message' => trans('notifications.service_wilaya_added')
-            ]);
-        }
-        else {
-            return response()->json([
-                'success' => false,
-                'message' => trans('notifications.error_occured')
-            ]);
-        }
+        return response()->json([
+            'success' => true,
+            'message' => trans('notifications.service_wilaya_added'),
+        ]);
     }
 
 
@@ -91,20 +108,12 @@ class WilayaController extends BackendBaseController
      */
     public function deleteService(Request $request, $id) {
         $wilaya = $this->repository->find($id);
-        $status = $wilaya->services()->detach($request->service_id);
+        $wilaya->services()->detach($request->service_id);
 
-        if($status){
-            return response()->json([
-                'success' => true,
-                'message' => trans('notifications.service_wilaya_deleted')
-            ]);
-        }
-        else {
-            return response()->json([
-                'success' => false,
-                'message' => trans('notifications.error_occured')
-            ]);
-        }
+        return response()->json([
+            'success' => true,
+            'message' => trans('notifications.service_wilaya_deleted')
+        ]);
     }
 
 
@@ -137,7 +146,7 @@ class WilayaController extends BackendBaseController
      */
     public function show($id)
     {
-        //
+        return redirect()->back();
     }
 
     /**
@@ -148,7 +157,7 @@ class WilayaController extends BackendBaseController
      */
     public function edit($id)
     {
-        //
+        return redirect()->back();
     }
 
     /**

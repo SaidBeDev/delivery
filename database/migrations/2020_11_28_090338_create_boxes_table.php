@@ -24,7 +24,7 @@ class CreateBoxesTable extends Migration
             $table->string('tel');
             $table->string('code');
             $table->string('address');
-            $table->string('note');
+            $table->string('note')->nullable();
             $table->string('price');
             $table->string('total_price');
             $table->boolean('is_recieved')->default(false);

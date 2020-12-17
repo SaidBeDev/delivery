@@ -13,8 +13,8 @@ class Wilaya extends Model
 
     public $timestamps = false;
 
-    public function daira() {
-        return $this->hasMany('App\Daira', 'daira_id');
+    public function dairas() {
+        return $this->hasMany('App\Daira');
     }
 
     public function services() {

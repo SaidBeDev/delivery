@@ -18,8 +18,8 @@ class CreateWilayasTable extends Migration
             $table->string('code', 255);
             $table->string('name', 255);
             $table->string('name_ar', 255);
-            $table->string('availability');
-            $table->integer('price');
+            $table->boolean('availability')->default(true);
+            $table->string('price');
         });
     }
 

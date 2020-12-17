@@ -23,7 +23,7 @@ class ServiceController extends BackendBaseController
 
         $this->middleware('superAdmin');
 
-        $this->setRubricConfig('Services');
+        $this->setRubricConfig('services');
     }
 
     /**
@@ -78,7 +78,7 @@ class ServiceController extends BackendBaseController
      */
     public function show($id)
     {
-        //
+        return redirect()->back();
     }
 
     /**

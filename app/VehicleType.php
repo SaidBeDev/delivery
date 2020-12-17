@@ -8,7 +8,4 @@ class VehicleType extends Model
 {
     //
 
-    public function user() {
-        return $this->belongsTo('App\VehicleType', 'vehicle_type_id');
-    }
 }

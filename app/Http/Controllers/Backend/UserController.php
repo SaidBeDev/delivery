@@ -5,15 +5,22 @@ namespace App\Http\Controllers\Backend;
 use jsValidator;
 use Illuminate\Http\Request;
 
-use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\DB;
 
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\Eloquent\Builder;
 
+use App\Http\Controllers\Backend\BackendBaseController;
 use App\Http\SaidTech\Repositories\UsersRepository\UserRepository;
+use App\Http\SaidTech\Repositories\DairasRepository\DairaRepository;
+use App\Http\SaidTech\Repositories\WilayasRepository\WilayaRepository;
+use App\Http\SaidTech\Repositories\ServicesRepository\ServiceRepository;
 use App\Http\SaidTech\Repositories\ProfileTypesRepository\ProfileTypeRepository;
+use App\Http\SaidTech\Repositories\VehicleTypesRepository\VehicleTypeRepository;
 
-class UserController extends Controller
+use App\User;
+
+class UserController extends BackendBaseController
 {
     /**
      * @var UserRepository
@@ -23,11 +30,20 @@ class UserController extends Controller
 
     public function __construct(
         UserRepository $repository,
-        ProfileTypeRepository $profileTypesRepository
+        ProfileTypeRepository $profileTypesRepository,
+        ServiceRepository $serviceRepository,
+        WilayaRepository $wilayaRepository,
+        DairaRepository $dairaRepository,
+        VehicleTypeRepository $vehicleTypeRepository
+
     )
     {
         $this->repository = $repository;
         $this->repositories['ProfileTypesRepository'] = $profileTypesRepository;
+        $this->repositories['VehicleTypesRepository'] = $vehicleTypeRepository;
+        $this->repositories['ServiceRepository'] = $serviceRepository;
+        $this->repositories['WilayaRepository'] = $wilayaRepository;
+        $this->repositories['DairaRepository'] = $dairaRepository;
 
         $this->middleware('superAdmin');
 
@@ -41,13 +57,14 @@ class UserController extends Controller
      */
     public function index()
     {
+
         $data = [
             'list_users'  => $this->repository->whereHas('profile_type', function(Builder $query){
                 $query->where('name', '<>', 'superAdmin');
-            })
+            })->with(['daira', 'profile_type', 'vehicle_type'])->all()
         ];
 
-        return view($this->base_view . 'index', compact($data));
+        return view($this->base_view . 'index', ['data' => $data]);
     }
 
     /**
@@ -58,13 +75,23 @@ class UserController extends Controller
      */
     public function create()
     {
+
         $data = [
-            'profile_types' => $this->repositories['ProfileTypesRepository']->findWhere(['name', '<>', 'superAdmin']),
+            'profile_types' => $this->repositories['ProfileTypesRepository']->scopeQuery(function($query) {
+                return $query->where('name', '<>', 'superAdmin');
+            })->all(),
+            'vehicle_types' => $this->repositories['VehicleTypesRepository']->all(),
+            'list_services' => $this->repositories['ServiceRepository']->all(),
+            'list_wilayas'  => $this->repositories['WilayaRepository']->with('dairas')->all(),
+            'list_dairas'  => $this->repositories['DairaRepository']->whereHas('wilaya', function(Builder $query){
+                $query->where('availability',true);
+            })->all(),
             'userValidator' => jsValidator::make($this->getUserRules()),
             'deliveryManValidator' => jsValidator::make($this->getDeliveryManRules()),
         ];
 
-        return view($this->base_view . 'create', compact($data));
+
+        return view($this->base_view . 'create', ['data' => $data]);
     }
 
     /**
@@ -75,7 +102,7 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        $typeProfile = $this->repositories['ProfileTypesRepository']->find($request->profile_type);
+        $typeProfile = $this->repositories['ProfileTypesRepository']->find($request->profile_type_id);
 
         switch($typeProfile->name) {
             case 'distributor':
@@ -94,6 +121,8 @@ class UserController extends Controller
                 $this->repository->create($user);
                 break;
         }
+
+        return redirect()->route('admin.users.index')->with(['success' => true, 'message' => trans('notifications.user_created')]);
     }
 
     /**
@@ -104,7 +133,7 @@ class UserController extends Controller
      */
     public function show($id)
     {
-        //
+        return redirect()->back();
     }
 
     /**
@@ -118,10 +147,19 @@ class UserController extends Controller
         $data = [
             'userValidator'        => jsValidator::make($this->getUserRules()),
             'deliveryManValidator' => jsValidator::make($this->getDeliveryManRules()),
-            'user'                 => $this->repository->find($id)
+            'user'                 => $this->repository->find($id),
+            'profile_types' => $this->repositories['ProfileTypesRepository']->scopeQuery(function($query) {
+                return $query->where('name', '<>', 'superAdmin');
+            })->all(),
+            'vehicle_types' => $this->repositories['VehicleTypesRepository']->all(),
+            'list_services' => $this->repositories['ServiceRepository']->all(),
+            'list_wilayas'  => $this->repositories['WilayaRepository']->with('dairas')->all(),
+            'list_dairas'  => $this->repositories['DairaRepository']->whereHas('wilaya', function(Builder $query){
+                $query->where('availability',true);
+            })->all(),
         ];
 
-        return view($this->base_view . 'edit', compact($data));
+        return view($this->base_view . 'edit', ['data' => $data]);
     }
 
     /**
@@ -133,21 +171,53 @@ class UserController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $typeProfile = $this->repositories['ProfileTypesRepository']->find($request->profile_type);
+        $oldUser     = $this->repository->find($id);
+        $typeProfile = $this->repositories['ProfileTypesRepository']->find($request->profile_type_id);
 
         switch($typeProfile->name) {
             case 'distributor':
-                $user = $request->validate($this->getUserRules());
+                $user = $request->validate($this->getUserUpdateRules());
+
+                if(!empty($request->password)){
+                    $new_password = Hash::make($request->password);
+
+                    if($request->password != $new_password) {
+                        $user['password'] = $new_password;
+                    }
+                    else {
+                        $user['password'] = $oldUser->password;
+                    }
+                }
+                else {
+                    $user['password'] = $oldUser->password;
+                }
 
                 $this->repository->update($user, $id);
                 break;
 
             case 'deliveryMan':
-                $user = $request->validate($this->getDeliveryManRules());
+                $user = $request->validate($this->getDeliveryManUpdateRules());
+
+                if(!empty($request->password)){
+                    $new_password = Hash::make($request->password);
+
+                    if($request->password != $new_password) {
+                        $user['password'] = $new_password;
+                    }
+                    else {
+                        $user['password'] = $oldUser->password;
+                    }
+                }
+                else {
+                    $user['password'] = $oldUser->password;
+                }
+
 
                 $this->repository->update($user, $id);
                 break;
         }
+
+        return redirect()->route('admin.users.index')->with(['success' => true, 'message' => trans('notifications.user_updated')]);
     }
 
     /**
@@ -163,27 +233,58 @@ class UserController extends Controller
 
     public function getUserRules() {
         return [
+            'profile_type_id'=> 'required',
             'full_name'    => 'required',
             'username'     => 'required|unique:users',
-            'email'        => 'required|unique:users|email',
-            'password'     => 'required|string|min:8|regex:/^.*(?=.{3,})(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[\d\x]).*$',
+            'email'        => 'nullable|email',
+            'password'     => 'required|string|min:8|regex:/^.*(?=.{3,})(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[\d\x]).*$/',
             'tel'          => 'required',
             'address'      => 'required',
             'service_id'   => 'required',
-            'wilaya_id'    => 'required',
+            'daira_id'     => 'required',
         ];
     }
 
     public function getDeliveryManRules() {
         return [
+            'profile_type_id'=> 'required',
             'full_name'      => 'required',
             'username'       => 'required|unique:users',
-            'email'          => 'required|unique:users|email',
-            'password'       => 'required|string|min:8|regex:/^.*(?=.{3,})(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[\d\x]).*$',
+            'email'          => 'nullable|email',
+            'password'       => 'required|string|min:8|regex:/^.*(?=.{3,})(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[\d\x]).*$/',
             'tel'            => 'required',
             'address'        => 'required',
             'service_id'     => 'required',
-            'wilaya_id'      => 'required',
+            'daira_id'      => 'required',
+            'vehicle_type_id'=> 'required'
+        ];
+    }
+
+    public function getUserUpdateRules() {
+        return [
+            'profile_type_id'=> 'required',
+            'full_name'    => 'required',
+            'username'     => 'required',
+            'email'        => 'nullable|email',
+            'password'     => 'nullable|min:8|regex:/^.*(?=.{3,})(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[\d\x]).*$/',
+            'tel'          => 'required',
+            'address'      => 'required',
+            'service_id'   => 'required',
+            'daira_id'     => 'required',
+        ];
+    }
+
+    public function getDeliveryManUpdateRules() {
+        return [
+            'profile_type_id'=> 'required',
+            'full_name'      => 'required',
+            'username'       => 'required',
+            'email'          => 'nullable|email',
+            'password'     => 'nullable|min:8|regex:/^.*(?=.{3,})(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[\d\x]).*$/',
+            'tel'            => 'required',
+            'address'        => 'required',
+            'service_id'     => 'required',
+            'daira_id'      => 'required',
             'vehicle_type_id'=> 'required'
         ];
     }

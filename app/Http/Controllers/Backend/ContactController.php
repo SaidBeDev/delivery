@@ -3,14 +3,15 @@
 namespace App\Http\Controllers\Backend;
 
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
+
+use App\Http\Controllers\Backend\BackendBaseController;
 
 use App\Http\SaidTech\Repositories\ContactsRepository\ContactRepository;
 use App\Http\SaidTech\Repositories\ContactTypesRepository\ContactTypeRepository;
 
 use jsValidator;
 
-class ContactController extends Controller
+class ContactController extends BackendBaseController
 {
     /**
      * @var ContactRepository
@@ -84,7 +85,7 @@ class ContactController extends Controller
      */
     public function show($id)
     {
-        //
+        return redirect()->back();
     }
 
     /**

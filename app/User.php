@@ -16,7 +16,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password',
+        'full_name', 'username', 'email', 'password', 'tel', 'address', 'profile_type_id', 'service_id', 'daira_id', 'vehicle_type_id'
     ];
 
     /**
@@ -38,7 +38,7 @@ class User extends Authenticatable
     ];
 
     public function profile_type() {
-        return $this->hasOne('App\ProfileTypes');
+        return $this->hasOne('App\ProfileTypes', 'id', 'profile_type_id');
     }
 
     public function service() {
@@ -46,11 +46,11 @@ class User extends Authenticatable
     }
 
     public function vehicle_type() {
-        return $this->hasOne('App\VehicleType');
+        return $this->hasOne('App\VehicleType', 'id', 'vehicle_type_id');
     }
 
     public function daira() {
-        return $this->hasOne('App\Daira');
+        return $this->hasOne('App\Daira', 'id', 'daira_id');
     }
 
     public function boxes() {

@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateDairasTable extends Migration
+class ServiceAvailability extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,8 @@ class CreateDairasTable extends Migration
      */
     public function up()
     {
-        Schema::create('serviceable', function (Blueprint $table) {
-            $table->bigIncrements('id');
+        Schema::create('serviceables', function (Blueprint $table) {
+            $table->bigIncrements('service_id');
             $table->unsignedInteger('serviceable_id');
             $table->string('serviceable_type');
         });
