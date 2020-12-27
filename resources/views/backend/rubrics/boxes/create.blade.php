@@ -66,8 +66,9 @@
                     <div class="col-md-4">
                         <label for="">Service</label>
                         <select name="service_id" class="form-control selectpicker" >
+                            <option name="service_id" value="" selected>Non spécifié</option>
                             @foreach ($data['list_services'] as $service)
-                                <option name="service_id"  value="{{ $service->id }}"  {{ $loop->index == 1 ? 'selected' : '' }}>{{ $service->name }}</option>
+                                <option name="service_id"  value="{{ $service->id }}">{{ $service->name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -105,6 +106,8 @@
 @endsection
 
 @section('scripts')
+    {!! $data['validator']->selector('form') !!}
+
     <script>
         $(document).ready(function() {
 

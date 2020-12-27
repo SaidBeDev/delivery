@@ -16,10 +16,5 @@ class ConfigSeeder extends Seeder
             'name'    => 'delivery_price',
             'content' => '500'
         ]);
-
-        DB::table('configs')->insert([
-            'name'    => 'retour_price',
-            'content' => '400'
-        ]);
     }
 }

@@ -39,12 +39,17 @@ class BoxStatusSeeder extends Seeder
 
         DB::table('box_statuses')->insert([
             'name' => 'Annuler',
-            'background_color' => 'grey',
+            'background_color' => 'red',
         ]);
 
         DB::table('box_statuses')->insert([
             'name' => 'Payé',
             'background_color' => 'limegreen',
+        ]);
+
+        DB::table('box_statuses')->insert([
+            'name' => 'En stock',
+            'background_color' => 'grey',
         ]);
     }
 }

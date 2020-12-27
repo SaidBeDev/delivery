@@ -39,11 +39,16 @@ class ContactController extends BackendBaseController
      */
     public function index()
     {
-        $data = [
-            'list_contacts' => $this->repository->all()
+        $info = [
+            'title' => $this->title
         ];
 
-        return view($this->base_view . 'index', compact($data));
+        $data = [
+            'list_contacts' => $this->repository->all(),
+            'contact_types' => $this->repositories['ContactTypesRepository']->all()
+        ];
+
+        return view($this->base_view . 'index', ['data' => $data, 'info' => $info]);
     }
 
     /**
@@ -53,12 +58,16 @@ class ContactController extends BackendBaseController
      */
     public function create()
     {
+        $info = [
+            'title' => $this->title
+        ];
+
         $data = [
             'contact_types' => $this->repositories['ContactTypesRepository']->all(),
             'validator'     => jsValidator::make($this->getContactRules())
         ];
 
-        return view($this->base_view . 'create', compact($data));
+        return view($this->base_view . 'create', ['data' => $data, 'info' => $info]);
     }
 
     /**
@@ -74,7 +83,7 @@ class ContactController extends BackendBaseController
 
         $this->repository->create($newContact);
 
-        return view($this->base_view . 'index')->with(['success' => trans('notifications.contact_added')]);
+        return redirect()->route('admin.contacts.index')->with(['success' => trans('notifications.contact_added')]);
     }
 
     /**
@@ -96,13 +105,17 @@ class ContactController extends BackendBaseController
      */
     public function edit($id)
     {
+        $info = [
+            'title' => $this->title
+        ];
+
         $data = [
             'contact'       => $this->repository->find($id),
             'contact_types' => $this->repositories['ContactTypesRepository']->all(),
             'validator'     => jsValidator::make($this->getContactRules())
         ];
 
-        return view($this->base_view . 'edit', compact($data));
+        return view($this->base_view . 'edit', ['data' => $data, 'info' => $info]);
     }
 
     /**
@@ -132,18 +145,13 @@ class ContactController extends BackendBaseController
      */
     public function destroy($id)
     {
-        $status = $this->repository->delete($id);
+        $this->repository->delete($id);
 
-        if(!$status)
-            return view($this->base_view . 'index')->with(['success' => false,'message' => trans('notifications.error_occured')]);
-
-        return view($this->base_view . 'index')->with(['success' => true,'message' => trans('notifications.contact_deleted')]);
+        return response()->json(['success' => true,'message' => trans('notifications.contact_deleted')]);
     }
 
     public function getContactRules() {
         return [
-            'type' => 'required',
-            'name' => 'required',
             'content' => 'required',
             'contact_type_id' => 'required',
         ];

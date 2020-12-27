@@ -13,9 +13,6 @@
                 <th>Nom complet</th>
                 <th class="text-center">Ville</th>
                 <th class="text-center">Prix (Da)</th>
-                @if (Auth::user()->profile_type->name == "superAdmin")
-                    <th class="text-center">Affecter à</th>
-                @endif
                 <th class="">Status</th>
                 @if (in_array(Auth::user()->profile_type->name, ["superAdmin", "distributor"]))
                     <th class="text-center">Actions</th>
@@ -44,29 +41,8 @@
                         <td class="text-center">{{ $box->daira->name . ', ' . $box->daira->wilaya->name }}</td>
                         <td class="text-center">{{ $box->total_price }}</td>
 
-                        @if (Auth::user()->profile_type->name == "superAdmin")
-                            <td class="text-center" data-boxId="{{ $box->id }}">
-                                <select name="assigned_user_id" class="form-control man-select">
-                                    @if ($box->assigned_user_id == 0)
-                                        <option value="0" selected disabled>Non affecté</option>
-                                    @endif
-                                    @foreach ($data['list_delivrers'] as $man)
-                                        <option name="assigned_user_id"  value="{{ $man->id }}" data-userId="{{ $man->id }}" data-boxId="{{ $box->id }}" {{ $box->assigned_user_id == $man->id ? 'selected' : '' }}>{{ $man->full_name }}</option>
-                                    @endforeach
-                                </select>
-                            </td>
-                        @endif
-
                         <td class="text-center" data-boxId="{{ $box->id }}">
-                            @if (in_array(Auth::user()->profile_type->name, ["superAdmin", "deliveryMan"]))
-                                <select name="box_status_id" class="form-control box-select">
-                                    @foreach ($data['box_status'] as $status)
-                                        <option name="box_status_id"  value="{{ $status->id }}" data-bgcolor="{{ $status->background_color }}" data-color="white" data-statusId="{{ $status->id }}" data-boxId="{{ $box->id }}" {{ $box->box_status->id == $status->id ? 'selected' : '' }}>{{ $status->name }}</option>
-                                    @endforeach
-                                </select>
-                            @else
-                                <div class="badge" style="background-color: {{ $box->box_status->background_color }}; color: #fff; padding: 10px">{{ $box->box_status->name }}</div>
-                            @endif
+                            <div class="badge" style="background-color: grey; color: #fff; padding: 10px">Non recevé</div>
                         </td>
                         {{-- <td class="text-center">
                             <div class="badge badge-warning">Pending</div>
@@ -214,6 +190,7 @@
                     $('.checkbox:checked').each(function(i) {
                         selectedBoxes.push($(this).val());
                     });
+
                 })
 
                 $('.box-select').map(function() {

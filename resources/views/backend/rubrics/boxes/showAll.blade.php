@@ -1,18 +1,15 @@
 
-@php
-    $box = $data['box'];
-@endphp
-
 @extends('backend.layouts.master')
 
 @section('content')
-    <div class="main-card mb-3 card">
-        <div class="card-header">Details de Coulis</div>
+<div class="main-card mb-3 card">
+    <div class="card-header">Details de Coulis</div>
 
-        {{-- @include('backend.rubrics.boxes.box_details', ['box' => $box]) --}}
+    {{-- @include('backend.rubrics.boxes.box_details', ['box' => $box]) --}}
 
-        <div id="printable" class="card-body" style="font-size: 18px">
-            <link rel="stylesheet" href="{{ asset('node_modules/bootstrap/dist/css/bootstrap.min.css') }}" media="print" />
+    <div id="printable" class="card-body" style="font-size: 18px">
+        <link rel="stylesheet" href="{{ asset('node_modules/bootstrap/dist/css/bootstrap.min.css') }}" media="print" />
+        @foreach ($data['list_boxes'] as $box)
             <div class="form-row">
                 <div class="col-md-3"  style="border: 1px solid #111; padding: 10px">
                     <div>
@@ -58,7 +55,6 @@
                             ">Prix: {{ $box->total_price .',00'. ' Da' }}</p>
                         </div>
                     </div>
-
                 </div>
 
 
@@ -88,99 +84,63 @@
                     </div>
                 </div>
             </div>
-
-        </div>
+        @endforeach
 
     </div>
-    <div class="form-row">
-        <div class="col-md-4">
-            <button class="btn btn-success save">Imprimer</button>
-        </div>
+
+</div>
+<div class="form-row mb-5">
+    <div class="col-md-4">
+        <button class="btn btn-success save">Imprimer</button>
     </div>
+</div>
 @endsection
 
 @section('scripts')
-    {{-- Include scripts --}}
-    {!! Html::script('node_modules/quagga/dist/quagga.min.js') !!}
-    {!! Html::script('backend/js/jQuery.print.min.js') !!}
+{{-- Include scripts --}}
+{!! Html::script('node_modules/quagga/dist/quagga.min.js') !!}
+{!! Html::script('backend/js/jQuery.print.min.js') !!}
 
-    <script>
-        $(document).ready(function(){
-            @if(!empty(session()->has('success')))
-                new Noty({
+<script>
+    $(document).ready(function(){
+        @if(!empty(session()->has('success')))
+            new Noty({
+                timeout: 5000,
+                progressBar: true,
+                type: 'success',
+                theme: 'sunset',
+                text: "{{ session('success') }}"
+            }).show();
+        @elseif(session()->has('error'))
+            new Noty({
                     timeout: 5000,
                     progressBar: true,
-                    type: 'success',
+                    type: 'error',
                     theme: 'sunset',
-                    text: "{{ session('success') }}"
+                    text: "Une erreur est survenue"
                 }).show();
-            @elseif(session()->has('error'))
-                new Noty({
-                        timeout: 5000,
-                        progressBar: true,
-                        type: 'error',
-                        theme: 'sunset',
-                        text: "Une erreur est survenue"
-                    }).show();
-            @endif
+        @endif
+    });
+</script>
+
+<script>
+    $(document).ready(function() {
+        /* */
+
+        $('button.save').on('click', function() {
+            var divToPrint=document.getElementById('printable');
+
+            var newWin=window.open('','Print-Window');
+
+            newWin.document.open();
+
+            newWin.document.write('<html><body onload="window.print()">'+divToPrint.innerHTML+'</body></html>');
+
+            newWin.document.close();
+
+            setTimeout(function(){newWin.close();},10);
         });
-    </script>
 
-    <script>
-        $(document).ready(function() {
-            /* */
-
-            $('button.save').on('click', function() {
-                var divToPrint=document.getElementById('printable');
-
-                var newWin=window.open('','Print-Window');
-
-                newWin.document.open();
-
-                newWin.document.write('<html><body onload="window.print()">'+divToPrint.innerHTML+'</body></html>');
-
-                newWin.document.close();
-
-                setTimeout(function(){newWin.close();},10);
-            });
-
-            function downloadFile() {
-
-                id  = {{ $box->id }};
-
-                // CSRF TOKEN Setup
-                jQuery.ajaxSetup({
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="_token"]').attr('content')
-                    }
-                });
-
-                // Ajax requests
-                $.ajax({
-                    url: "{{ route('admin.downlaodFile', ['id' => 'boxId']) }}".replace('boxId', id),
-                    method: 'POST',
-                    data: {
-                        _token: '{{ csrf_token() }}'
-                    }
-                }).done(function() {
-                    new Noty({
-                        timeout: 5000,
-                        progressBar: true,
-                        type: 'success',
-                        theme: 'sunset',
-                        text: 'download succesfully'
-                    }).show();
-                }).fail(function(response) {
-                    new Noty({
-                        timeout: 5000,
-                        progressBar: true,
-                        type: 'error',
-                        theme: 'sunset',
-                        text: 'error'
-                    }).show();
-                });
-            };
-
-        });
-    </script>
+    });
+</script>
 @endsection

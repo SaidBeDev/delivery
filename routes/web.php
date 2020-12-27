@@ -26,17 +26,21 @@ Route::group([
 
         /**
          * Boxes Routes
-         *  */
+         *
+         * */
+        Route::get('boxes/list-delivrers', 'BoxController@showLivrers')->name('showLivrers')->middleware('superAdmin');
+        Route::get('boxes/non-received', 'BoxController@getNonReceivedBoxes')->name('getNonReceivedBoxes')->middleware('superAdmin');
         Route::get('boxes/livred-boxes', 'BoxController@getLivredBoxes')->name('getLivredBoxes')->middleware('superAdmin');
         Route::get('boxes/livred-boxes/{id}', 'BoxController@getLivredBoxesById')->name('getLivredBoxesById')->middleware('superAdmin');
-        Route::get('boxes/set-received/', function() {return view('backend.rubrics.boxes.setReceived');})->name('setRecievedPage')->middleware('superAdmin');
+        Route::get('boxes/set-received/', function() {return view('backend.rubrics.boxes.setReceived', ['info' => ['title' => "Recevoir d'une Coulis"]]);})->name('setRecievedPage')->middleware('superAdmin');
         Route::post('boxes/set-received/{code}', 'BoxController@setRecieved')->name('setRecieved')->middleware('superAdmin');
-        Route::get('boxes/set-returned/', function() {return view('backend.rubrics.boxes.setReturned');})->name('setReturnedPage')->middleware('superAdmin');
+        Route::get('boxes/set-returned/', function() {return view('backend.rubrics.boxes.setReturned', ['info' => ['title' => "Retour d'une Coulis"]]);})->name('setReturnedPage')->middleware('superAdmin');
         Route::post('boxes/set-returned/{code}', 'BoxController@setReturned')->name('setReturned')->middleware('superAdmin');
         Route::post('boxes/change-status/{id}/{newStatusId}', 'BoxController@changeStatus')->name('changeStatus')->middleware('deliveryMan');
         Route::post('boxes/assign-box/{id}/{userId}', 'BoxController@assignBox')->name('assignBox')->middleware('superAdmin');
         Route::post('boxes/download-file/{id}', 'BoxController@downlaodFile')->name('downlaodFile')->middleware('superAdmin');
         Route::get('boxes/show-file/{id}', 'BoxController@showFile')->name('showFile')->middleware('superAdmin');
+        Route::get('boxes/print-all/{id}', 'BoxController@showAll')->name('showAll')->middleware('superAdmin');
         Route::resource('boxes', 'BoxController');
 
         /**

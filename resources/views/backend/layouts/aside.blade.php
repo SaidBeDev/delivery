@@ -31,235 +31,171 @@
     </div>    <div class="scrollbar-sidebar">
         <div class="app-sidebar__inner">
             <ul class="vertical-nav-menu">
-                <li class="app-sidebar__heading">Dashboards</li>
+                {{-- Backend --}}
+                <li class="app-sidebar__heading">Dashboard</li>
+                {{-- Coulis --}}
                 <li>
-                    <a href="index.html" class="mm-active">
-                        <i class="metismenu-icon pe-7s-rocket"></i>
-                        Dashboard Example 1
-                    </a>
-                </li>
-                <li class="app-sidebar__heading">UI Components</li>
-                <li
-
-
-
-
-
-
-
-
-                >
-                    <a href="#">
-                        <i class="metismenu-icon pe-7s-diamond"></i>
-                        Elements
+                    <a href="#" class="{{ isset($info['title']) ? ($info['title'] == trans('menu.boxes') ? 'mm-active' : '') : '' }}">
+                        <i class="metismenu-icon pe-7s-box2"></i>
+                        Coulis
                         <i class="metismenu-state-icon pe-7s-angle-down caret-left"></i>
                     </a>
-                    <ul
-
-
-
-
-
-
-
-
-                    >
+                    <ul>
                         <li>
-                            <a href="elements-buttons-standard.html">
+                            <a href="{{ route('admin.boxes.index') }}">
                                 <i class="metismenu-icon"></i>
-                                Buttons
+                                {{ Auth::user()->profile_type->name == "superAdmin" ? 'Tous les Coulis' : 'Mes Coulis' }}
                             </a>
+                            @if (in_array(Auth::user()->profile_type->name, ["superAdmin", "distributor"]))
+                                <a href="{{ route('admin.getNonReceivedBoxes') }}">
+                                    <i class="metismenu-icon"></i>
+                                    Tous les Coulis Non Reçu
+                                </a>
+                                <a href="{{ route('admin.boxes.create') }}">
+                                    <i class="metismenu-icon"></i>
+                                    Nouveau Coulis
+                                </a>
+                            @endif
+
+                            @if (Auth::user()->profile_type->name == "superAdmin")
+                                <a href="{{ route('admin.setRecievedPage') }}" style="background: limegreen;color: #fff;">
+                                    <i class="metismenu-icon"></i>
+                                    Recevoir d'une Coulis
+                                </a>
+                                <a href="{{ route('admin.setReturnedPage') }}" style="background: orangered;color: #fff;">
+                                    <i class="metismenu-icon"></i>
+                                    Retour d'une Coulis
+                                </a>
+                            @endif
                         </li>
+                    </ul>
+                </li>
+                {{-- Users --}}
+                @if (Auth::user()->profile_type->name == "superAdmin")
+                    <li>
+                        <a href="#" class="{{ isset($info['title']) ? ($info['title'] == trans('menu.users') ? 'mm-active' : '') : '' }}">
+                            <i class="metismenu-icon pe-7s-user"></i>
+                            Utilisateurs
+                            <i class="metismenu-state-icon pe-7s-angle-down caret-left"></i>
+                        </a>
+                        <ul>
+                            <li>
+                                <a href="{{ route('admin.users.index') }}">
+                                    <i class="metismenu-icon"></i>
+                                    Tous les Utilisateurs
+                                </a>
+                                <a href="elements-buttons-standard.html">
+                                    <i class="metismenu-icon"></i>
+                                    Nouveau Utilisateur
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    {{-- Wilayas --}}
+                    <li>
+                        <a href="#" class="{{ isset($info['title']) ? ($info['title'] == trans('menu.wilayas') ? 'mm-active' : '') : '' }}">
+                            <i class="metismenu-icon pe-7s-map-marker"></i>
+                            Wilayas
+                            <i class="metismenu-state-icon pe-7s-angle-down caret-left"></i>
+                        </a>
+                        <ul>
+                            <li>
+                                <a href="{{ route('admin.wilayas.index') }}">
+                                    <i class="metismenu-icon"></i>
+                                    Tous les Wilayas
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    {{-- Contacts --}}
+                    <li>
+                        <a href="#" class="{{ isset($info['title']) ? ($info['title'] == trans('menu.contacts') ? 'mm-active' : '') : '' }}">
+                            <i class="metismenu-icon pe-7s-map-marker"></i>
+                            Contacts
+                            <i class="metismenu-state-icon pe-7s-angle-down caret-left"></i>
+                        </a>
+                        <ul>
+                            <li>
+                                <a href="{{ route('admin.contacts.index') }}">
+                                    <i class="metismenu-icon"></i>
+                                    Tous les Contacts
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('admin.contacts.create') }}">
+                                    <i class="metismenu-icon"></i>
+                                    Nouveau Contact
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    {{-- Configs --}}
+                    <li>
+                        <a href="{{ route('admin.configs.index') }}" class="{{ isset($info['title']) ? ($info['title'] == trans('menu.configs') ? 'mm-active' : '') : '' }}">
+                            <i class="metismenu-icon pe-7s-settings"></i>
+                            Configurations
+                        </a>
+                    </li>
+                    {{-- Services --}}
+                    <li>
+                        <a href="#" class="{{ isset($info['title']) ? ($info['title'] == trans('menu.services') ? 'mm-active' : '') : '' }}">
+                            <i class="metismenu-icon pe-7s-tools"></i>
+                            Services
+                            <i class="metismenu-state-icon pe-7s-angle-down caret-left"></i>
+                        </a>
+                        <ul>
+                            <li>
+                                <a href="{{ route('admin.services.index') }}">
+                                    <i class="metismenu-icon"></i>
+                                    Tous les Services
+                                </a>
+                                <a href="{{ route('admin.services.create') }}">
+                                    <i class="metismenu-icon"></i>
+                                    Nouveau Service
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    {{-- Frontend --}}
+                    <li class="app-sidebar__heading">Façade du site</li>
+
+                    {{-- Services --}}
+                    <li>
+                        <a href="#" class="{{ isset($info['title']) ? ($info['title'] == trans('menu.services_front') ? 'mm-active' : '') : '' }}">
+                            <i class="metismenu-icon pe-7s-tools"></i>
+                            Notre Services
+                            <i class="metismenu-state-icon pe-7s-angle-down caret-left"></i>
+                        </a>
+                        <ul>
+                            <li>
+                                <a href="{{-- route('frontend.services.index') --}}">
+                                    <i class="metismenu-icon"></i>
+                                    Tous les Services
+                                </a>
+                                <a href="{{-- route('frontend.services.create') --}}">
+                                    <i class="metismenu-icon"></i>
+                                    Nouveau Service
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    {{-- About us --}}
+                    <li>
+                        <a href="#" class="{{ isset($info['title']) ? ($info['title'] == trans('menu.services_front') ? 'mm-active' : '') : '' }}">
+                            <i class="metismenu-icon pe-7s-tools"></i>
+                            A propos de nous
+                            <i class="metismenu-state-icon pe-7s-angle-down caret-left"></i>
+                        </a>
+                        <ul>
                         <li>
-                            <a href="elements-dropdowns.html">
-                                <i class="metismenu-icon">
-                                </i>Dropdowns
-                            </a>
-                        </li>
-                        <li>
-                            <a href="elements-icons.html">
-                                <i class="metismenu-icon">
-                                </i>Icons
-                            </a>
-                        </li>
-                        <li>
-                            <a href="elements-badges-labels.html">
-                                <i class="metismenu-icon">
-                                </i>Badges
-                            </a>
-                        </li>
-                        <li>
-                            <a href="elements-cards.html">
-                                <i class="metismenu-icon">
-                                </i>Cards
-                            </a>
-                        </li>
-                        <li>
-                            <a href="elements-list-group.html">
-                                <i class="metismenu-icon">
-                                </i>List Groups
-                            </a>
-                        </li>
-                        <li>
-                            <a href="elements-navigation.html">
-                                <i class="metismenu-icon">
-                                </i>Navigation Menus
-                            </a>
-                        </li>
-                        <li>
-                            <a href="elements-utilities.html">
-                                <i class="metismenu-icon">
-                                </i>Utilities
+                            <a href="{{-- route('frontend.about.index') --}}">
+                                <i class="metismenu-icon"></i>
+                                Modifier
                             </a>
                         </li>
                     </ul>
                 </li>
-                <li
-
-
-
-
-
-
-
-
-
-
-
-                >
-                    <a href="#">
-                        <i class="metismenu-icon pe-7s-car"></i>
-                        Components
-                        <i class="metismenu-state-icon pe-7s-angle-down caret-left"></i>
-                    </a>
-                    <ul
-
-
-
-
-
-
-
-
-
-
-
-                    >
-                        <li>
-                            <a href="components-tabs.html">
-                                <i class="metismenu-icon">
-                                </i>Tabs
-                            </a>
-                        </li>
-                        <li>
-                            <a href="components-accordions.html">
-                                <i class="metismenu-icon">
-                                </i>Accordions
-                            </a>
-                        </li>
-                        <li>
-                            <a href="components-notifications.html">
-                                <i class="metismenu-icon">
-                                </i>Notifications
-                            </a>
-                        </li>
-                        <li>
-                            <a href="components-modals.html">
-                                <i class="metismenu-icon">
-                                </i>Modals
-                            </a>
-                        </li>
-                        <li>
-                            <a href="components-progress-bar.html">
-                                <i class="metismenu-icon">
-                                </i>Progress Bar
-                            </a>
-                        </li>
-                        <li>
-                            <a href="components-tooltips-popovers.html">
-                                <i class="metismenu-icon">
-                                </i>Tooltips &amp; Popovers
-                            </a>
-                        </li>
-                        <li>
-                            <a href="components-carousel.html">
-                                <i class="metismenu-icon">
-                                </i>Carousel
-                            </a>
-                        </li>
-                        <li>
-                            <a href="components-calendar.html">
-                                <i class="metismenu-icon">
-                                </i>Calendar
-                            </a>
-                        </li>
-                        <li>
-                            <a href="components-pagination.html">
-                                <i class="metismenu-icon">
-                                </i>Pagination
-                            </a>
-                        </li>
-                        <li>
-                            <a href="components-scrollable-elements.html">
-                                <i class="metismenu-icon">
-                                </i>Scrollable
-                            </a>
-                        </li>
-                        <li>
-                            <a href="components-maps.html">
-                                <i class="metismenu-icon">
-                                </i>Maps
-                            </a>
-                        </li>
-                    </ul>
-                </li>
-                <li  >
-                    <a href="tables-regular.html">
-                        <i class="metismenu-icon pe-7s-display2"></i>
-                        Tables
-                    </a>
-                </li>
-                <li class="app-sidebar__heading">Widgets</li>
-                <li>
-                    <a href="dashboard-boxes.html">
-                        <i class="metismenu-icon pe-7s-display2"></i>
-                        Dashboard Boxes
-                    </a>
-                </li>
-                <li class="app-sidebar__heading">Forms</li>
-                <li>
-                    <a href="forms-controls.html">
-                        <i class="metismenu-icon pe-7s-mouse">
-                        </i>Forms Controls
-                    </a>
-                </li>
-                <li>
-                    <a href="forms-layouts.html">
-                        <i class="metismenu-icon pe-7s-eyedropper">
-                        </i>Forms Layouts
-                    </a>
-                </li>
-                <li>
-                    <a href="forms-validation.html">
-                        <i class="metismenu-icon pe-7s-pendrive">
-                        </i>Forms Validation
-                    </a>
-                </li>
-                <li class="app-sidebar__heading">Charts</li>
-                <li>
-                    <a href="charts-chartjs.html">
-                        <i class="metismenu-icon pe-7s-graph2">
-                        </i>ChartJS
-                    </a>
-                </li>
-                <li class="app-sidebar__heading">PRO Version</li>
-                <li>
-                    <a href="https://dashboardpack.com/theme-details/architectui-dashboard-html-pro/" target="_blank">
-                        <i class="metismenu-icon pe-7s-graph2">
-                        </i>
-                        Upgrade to PRO
-                    </a>
-                </li>
+                @endif
             </ul>
         </div>
     </div>

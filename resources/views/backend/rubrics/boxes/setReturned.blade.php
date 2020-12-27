@@ -3,24 +3,23 @@
 @extends('backend.layouts.master')
 
 @section('content')
-<div class="main-card mb-3 card">
-    <div class="card-header">Recevoir d'une Coulis</div>
+    <div class="main-card mb-3 card">
+        <div class="card-header">Retour d'une Coulis</div>
 
-    <div class="card-body">
-        <div class="form-row">
-            <div class="col-md-4 mb-3">
-                <label for="validationCustom01">Reference</label>
-                <input type="text" name="reference" class="form-control form-control-lg reference" id="validationCustom01" placeholder="Reference N°" autocomplete="new-password">
+        <div class="card-body">
+            <div class="form-row">
+                <div class="col-md-4 mb-3">
+                    <label for="validationCustom01">Reference</label>
+                    <input type="text" name="reference" class="form-control form-control-lg reference" id="validationCustom01" placeholder="Reference N°" autocomplete="new-password">
+                </div>
             </div>
-        </div>
-        <div class="form-row">
-            <div class="col-md-4">
-                <button class="btn btn-primary save">Sauvegarder</button>
+            <div class="form-row">
+                <div class="col-md-4">
+                    <button class="btn btn-primary save">Sauvegarder</button>
+                </div>
             </div>
         </div>
     </div>
-
-
 @endsection
 
 @section('scripts')
@@ -82,7 +81,7 @@
 
                 // Ajax requests
                 $.ajax({
-                    url: "{{ route('admin.setRecieved', ['code' => 'codeX']) }}".replace('codeX', code),
+                    url: "{{ route('admin.setReturned', ['code' => 'codeX']) }}".replace('codeX', code),
                     method: 'POST',
                     data: {
                         _token: '{{ csrf_token() }}'

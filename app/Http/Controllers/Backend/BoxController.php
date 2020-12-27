@@ -64,6 +64,9 @@ class BoxController extends BackendBaseController
     public function index()
     {
         $data = [];
+        $info = [
+            'title' => $this->title
+        ];
 
         if(!empty(Auth::user())) {
             $user = $this->repositories['UserRepository']->find(Auth::id());
@@ -71,7 +74,7 @@ class BoxController extends BackendBaseController
             switch($user->profile_type->name) {
                 case 'superAdmin':
                     $data = [
-                        'list_boxes'      => $this->repository->all(),
+                        'list_boxes'      => $this->repository->findWhere(['is_recieved' => 1])->all(),
                         'box_status' => $this->repositories['BoxStatusRepository']->all(),
                         'list_delivrers' => $this->repositories['UserRepository']->whereHas('profile_type', function(Builder $query){
                             $query->where('name', '=', 'deliveryMan');
@@ -95,23 +98,59 @@ class BoxController extends BackendBaseController
             }
         }
 
-        return view($this->base_view . 'index', ['data' => $data]);
+        return view($this->base_view . 'index', ['data' => $data, 'info' => $info]);
     }
 
     /**
      * Get list of livred boxes
+     *
+     */
+    public function showLivrers() {
+        $listLivrers = $this->repositories['UserRepository']->whereHas('profile_type', function(Builder $query){
+                            $query->where('name', '=', 'deliveryMan');
+                        })->all();
+        $data = [
+            'list_delivrers' => $listLivrers
+        ];
+
+        return view('backend.rubrics.budgets.listUsers', ['data' => $data]);
+    }
+
+    /**
+     * Get list of Non recieved Boxes
      * @void
      */
+    public function getNonReceivedBoxes() {
+        $info = [
+            'title' => "Non Reçu"
+        ];
+        $listBoxes = $this->repository->findWhere(['is_recieved' => 0])->all();
+
+        $data = [
+            'list_boxes' => $listBoxes
+        ];
+
+        return view($this->base_view . 'nonReceived', ['data' => $data, 'info' => $info]);
+    }
+
+    /**
+     * Get list of livred boxes
+     *
+     */
     public function getLivredBoxes() {
+        $info = [
+            'title' => $this->title
+        ];
+
         $listBoxes = $this->repository->whereHas('box_status', function(Builder $query) {
-            $query->where(['name', '=', 'Livrer']);
+            $query->where(['name'=> 'Livrer']);
         })->all();
 
         $data = [
             'list_boxes' => $listBoxes
         ];
 
-        return view('backend.rubrics.budgets.index', ['data' => $data]);
+        return view('backend.rubrics.budgets.index', ['data' => $data, 'info' => $info]);
     }
 
     /**
@@ -119,17 +158,32 @@ class BoxController extends BackendBaseController
      * @void
      */
     public function getLivredBoxesById($userId) {
-        $listBoxes = $this->repository
-                            ->findWhere(['user_id' => $userId])
-                            ->whereHas('box_status', function(Builder $query) {
-                                $query->where(['name', '=', 'Livrer']);
-                            })->all();
-
-        $data = [
-            'list_boxes' => $listBoxes
+        $info = [
+            'title' => $this->title
         ];
 
-        return view('backend.rubrics.budgets.show', ['data' => $data]);
+        $listBoxes = $this->repository
+                            ->findWhere(['assigned_user_id' => $userId]);
+                            /* ->whereHas('box_status', function(Builder $query) {
+                                $query->where(['name', '=', 'Livrer']);
+                            })->all(); */
+
+        $filtredBoxes = $listBoxes->filter(function ($box) {
+            return $box->box_status->name == 'Livrer';
+        });
+
+        $total_price = 0;
+        foreach ($filtredBoxes as $box) {
+            $total_price += (int)$box->total_price - (int)$box->price;
+        }
+
+        $data = [
+            'list_boxes' => $filtredBoxes,
+            'total_price'=> $total_price
+
+        ];
+
+        return view('backend.rubrics.budgets.show', ['data' => $data, 'info' => $info]);
     }
 
     /**
@@ -143,23 +197,24 @@ class BoxController extends BackendBaseController
         $box = $this->repository->findWhere(['code' => $code])->first();
 
         // Check that is either superadmin or delivery man
-        if(in_array($user->profile_type->name, ['superAdmin'])) {
+        if (in_array($user->profile_type->name, ['superAdmin'])) {
             $box->is_recieved = 1;
             $status = $box->save();
 
-            if(!$status){
-                return response()->json([
+            $boxStatus = $this->repositories['BoxStatusRepository']->findWhere(['name' => "En stock"])->first();
+            $box->box_status_id = $boxStatus->id;
+
+            if (!$status) {
+                return response()->json ([
                     'success' => false,
                     'message' => trans('notifications.error_occured'),
                 ]);
-            }else {
+            } else {
                 return response()->json([
                     'success' => true,
                     'message' => trans('notifications.received'),
                 ]);
             }
-
-
 
         }
     }
@@ -233,9 +288,13 @@ class BoxController extends BackendBaseController
      * Show
      */
     public function showFile($id) {
+        $info = [
+            'title' => $this->title
+        ];
+
         $box = $this->repository->find($id);
 
-        return view($this->base_view . 'box_details', ['box' => $box]);
+        return view($this->base_view . 'box_details', ['box' => $box, 'info' => $info]);
     }
     /**
      * Download as pdf
@@ -257,16 +316,20 @@ class BoxController extends BackendBaseController
     public function create()
     {
 
+        $info = [
+            'title' => $this->title
+        ];
+
         $data = [
             'list_services' => $this->repositories['ServiceRepository']->all(),
-            'list_dairas'   => Daira::all()->filter(function($daira){
+            'list_dairas'   => Daira::all()->filter( function ($daira) {
                 return $daira->wilaya->availability == 1;
             }),
             'list_wilayas'  => $this->repositories['WilayaRepository']->findWhere(['availability' => 1])->all(),
-            'validator' => jsValidator::make($this->getBoxRules())
+            'validator'     => jsValidator::make($this->getBoxRules())
         ];
 
-        return view($this->base_view . 'create', ['data' => $data]);
+        return view($this->base_view . 'create', ['data' => $data, 'info' => $info]);
     }
 
     /**
@@ -277,6 +340,10 @@ class BoxController extends BackendBaseController
      */
     public function store(Request $request)
     {
+        $info = [
+            'title' => $this->title
+        ];
+
         $newBox = $request->validate($this->getBoxRules());
 
         // Generate unique integer token  in boxes table
@@ -293,7 +360,11 @@ class BoxController extends BackendBaseController
 
         $this->repository->create($newBox);
 
-        return view($this->base_view . 'show', ['box' => $newBox])->with('success', trans('notifications.box_created'));
+        $data = [
+            'box' => $this->repository->findWhere(['code' => $newBox['code']])->first()
+        ];
+
+        return view($this->base_view . 'show', ['data' => $data, 'info' => $info])->with('success', trans('notifications.box_created'));
     }
 
     /**
@@ -304,11 +375,38 @@ class BoxController extends BackendBaseController
      */
     public function show($id)
     {
+        $info = [
+            'title' => $this->title
+        ];
+
         $data = [
             'box' => $this->repository->find($id)
         ];
 
-        return view($this->base_view . 'show', ['data' => $data]);
+        return view($this->base_view . 'show', ['data' => $data, 'info' => $info]);
+    }
+
+    /**
+     * Display the printable boxes.
+     *
+     * @param  string  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function showAll($id)
+    {
+        $info = [
+            'title' => $this->title
+        ];
+
+        $listId = explode(',', $id);
+
+        $listBoxes = $this->repository->findWhereIn('id', $listId);
+
+        $data = [
+            'list_boxes' => $listBoxes
+        ];
+
+        return view($this->base_view . 'showAll', ['data' => $data, 'info' => $info]);
     }
 
     /**
@@ -319,6 +417,9 @@ class BoxController extends BackendBaseController
      */
     public function edit($id)
     {
+        $info = [
+            'title' => $this->title
+        ];
 
         $data = [
             'list_services' => $this->repositories['ServiceRepository']->all(),
@@ -330,7 +431,7 @@ class BoxController extends BackendBaseController
             'validator' => jsValidator::make($this->getBoxRules())
         ];
 
-        return view($this->base_view . 'edit', ['data' => $data]);
+        return view($this->base_view . 'edit', ['data' => $data, 'info' => $info]);
     }
 
     /**
@@ -349,7 +450,7 @@ class BoxController extends BackendBaseController
         $daira  = $this->repositories['DairaRepository']->find($request->daira_id);
         $wilaya = $this->repositories['WilayaRepository']->find($daira->wilaya->id);
 
-        if($oldBox->price != $request->price){
+        if ($oldBox->price != $request->price) {
             $newBox['total_price'] = (int)$newBox['price'] + (int)$wilaya->price;
         }
 
@@ -366,7 +467,12 @@ class BoxController extends BackendBaseController
      */
     public function destroy($id)
     {
-        //
+        $this->repository->delete($id);
+
+        return response()->json([
+            'success' => true,
+            'message' => trans('notifications.box_deleted'),
+        ]);
     }
 
     public function getBoxRules() {

@@ -33,11 +33,17 @@ class ServiceController extends BackendBaseController
      */
     public function index()
     {
+
+        $info = [
+            'title' => $this->title
+        ];
+
+
         $data = [
             'list_services' => $this->repository->all()
         ];
 
-        return view('backend.rubrics.services.index', compact($data));
+        return view($this->base_view . 'index', ['data' => $data, 'info' => $info]);
     }
 
     /**
@@ -47,11 +53,16 @@ class ServiceController extends BackendBaseController
      */
     public function create()
     {
+
+        $info = [
+            'title' => $this->title
+        ];
+
         $data = [
             'validator' => jsValidator::make($this->getServiceRules())
         ];
 
-        return view('backend.rubrics.services.create', compact($data));
+        return view($this->base_view . 'create', ['data' => $data, 'info' => $info]);
     }
 
     /**
@@ -89,11 +100,15 @@ class ServiceController extends BackendBaseController
      */
     public function edit($id)
     {
+        $info = [
+            'title' => $this->title
+        ];
+
         $data = [
             'service' => $this->repository->find($id)
         ];
 
-        return view('backend.rubrics.services.edit', compact($data));
+        return view($this->base_view . 'edit', ['data' => $data, 'info' => $info]);
     }
 
     /**

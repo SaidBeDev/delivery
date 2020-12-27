@@ -7,13 +7,15 @@
     <meta http-equiv="Content-Language" content="en">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Analytics Dashboard - This is an example dashboard created using build-in elements and components.</title>
+    {{-- <title>Analytics Dashboard - This is an example dashboard created using build-in elements and components.</title> --}}
+    <title>Marsoul | {{ $info['title'] }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, shrink-to-fit=no" />
     <meta name="description" content="This is an example dashboard created using build-in elements and components.">
     <meta name="msapplication-tap-highlight" content="no">
 
     {{-- Styles --}}
     {!! Html::style('backend/css/main.css') !!}
+    {!! Html::style('backend/css/custom.css') !!}
     {!! Html::style('node_modules/bootstrap/dist/css/bootstrap.min.css') !!}
     {!! Html::style('node_modules/bootstrap-select/dist/css/bootstrap-select.min.css') !!}
     {!! Html::style('node_modules/noty/lib/noty.css') !!}
@@ -34,63 +36,11 @@
                     <div class="app-page-title">
                         <div class="page-title-wrapper">
                             <div class="page-title-heading">
-                                <div class="page-title-icon">
-                                    <i class="pe-7s-car icon-gradient bg-mean-fruit">
-                                    </i>
+                                <div style="margin-right: 15px">
+                                    <img src="{{ asset('backend/assets/images/gattaz.jpg') }}" alt="" width="90">
                                 </div>
-                                <div>Analytics Dashboard
-                                    <div class="page-title-subheading">This is an example dashboard created using build-in elements and components.
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="page-title-actions">
-                                <button type="button" data-toggle="tooltip" title="Example Tooltip" data-placement="bottom" class="btn-shadow mr-3 btn btn-dark">
-                                    <i class="fa fa-star"></i>
-                                </button>
-                                <div class="d-inline-block dropdown">
-                                    <button type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="btn-shadow dropdown-toggle btn btn-info">
-                                        <span class="btn-icon-wrapper pr-2 opacity-7">
-                                            <i class="fa fa-business-time fa-w-20"></i>
-                                        </span>
-                                        Buttons
-                                    </button>
-                                    <div tabindex="-1" role="menu" aria-hidden="true" class="dropdown-menu dropdown-menu-right">
-                                        <ul class="nav flex-column">
-                                            <li class="nav-item">
-                                                <a href="javascript:void(0);" class="nav-link">
-                                                    <i class="nav-link-icon lnr-inbox"></i>
-                                                    <span>
-                                                        Inbox
-                                                    </span>
-                                                    <div class="ml-auto badge badge-pill badge-secondary">86</div>
-                                                </a>
-                                            </li>
-                                            <li class="nav-item">
-                                                <a href="javascript:void(0);" class="nav-link">
-                                                    <i class="nav-link-icon lnr-book"></i>
-                                                    <span>
-                                                        Book
-                                                    </span>
-                                                    <div class="ml-auto badge badge-pill badge-danger">5</div>
-                                                </a>
-                                            </li>
-                                            <li class="nav-item">
-                                                <a href="javascript:void(0);" class="nav-link">
-                                                    <i class="nav-link-icon lnr-picture"></i>
-                                                    <span>
-                                                        Picture
-                                                    </span>
-                                                </a>
-                                            </li>
-                                            <li class="nav-item">
-                                                <a disabled href="javascript:void(0);" class="nav-link disabled">
-                                                    <i class="nav-link-icon lnr-file-empty"></i>
-                                                    <span>
-                                                        File Disabled
-                                                    </span>
-                                                </a>
-                                            </li>
-                                        </ul>
+                                <div>Yvon Gattaz
+                                    <div class="page-title-subheading" style="font-size: 18px; font-weight: 600"><b style="font-weight: bolder;font-size: 25px">“</b> Pour la succession des entreprises familiales, les patrons se partagent en deux catégories : ceux qui croient que le génie est héréditaire et ceux qui n'ont pas d'enfants.<b style="font-weight: bolder;font-size: 25px">”</b>
                                     </div>
                                 </div>
                             </div>
@@ -113,6 +63,7 @@
     {!! Html::script('backend/assets/scripts/main.js') !!}
     {!! Html::script('node_modules/bootstrap-select/dist/js/bootstrap-select.min.js') !!}
     {!! Html::script('node_modules/noty/lib/noty.min.js') !!}
+    {!! Html::script('vendor/jsvalidation/js/jsvalidation.min.js') !!}
 
 
     <script>

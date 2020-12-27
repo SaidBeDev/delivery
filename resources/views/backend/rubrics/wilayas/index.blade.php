@@ -222,7 +222,8 @@
                         if (response.success) {
                             newListServices = oldServices.push(newService).toString();
                             $('a.showDiag[data-wilayaId="'+ wilayaId +'"]').attr('data-listServices', newListServices);
-                            $('#addService').modal('hide');
+                            $('.modal-backdrop.fade.show').remove();
+                            $('#addService').removeClass('show');
 
                             var span = $('<span class="badge badge-dark"></span>');
                             var link = $('<a class="delete" data-serviceId="' + newService + '"><i class="fa fa-times-circle"></i></a>');
@@ -257,6 +258,7 @@
             $(document).on('click', 'a.delete', function() {
                 status = window.confirm('Voulez vous vraiment supprimer cette service?');
 
+                console.log(status === 'true' ? 'is true' : 'is false');
                 if(status === 'true') {
                     parent    = $(this).closest('td.badges');
                     elem      = $(this).closest('span.badge');

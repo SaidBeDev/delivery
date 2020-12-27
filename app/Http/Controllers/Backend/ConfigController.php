@@ -32,16 +32,27 @@ class ConfigController extends BackendBaseController
     }
 
     public function index() {
+        $info = [
+            'title' => $this->title
+        ];
+
         $data = [
             'list_configs' => $this->repository->all(),
             'validator'    => jsValidator::make($this->getConfigRules())
         ];
 
-        return view($this->base_view . 'index', compact($data));
+        return view($this->base_view . 'index', ['data' => $data, 'info' => $info]);
     }
 
     public function update(Request $request, $id) {
-        $this->repository->update($request->validate($this->getConfigRules()), $id);
+        $config = $this->repository->find($id);
+        $config->content = $request->content;
+        $config->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => trans('notifications.config_updated'),
+        ]);
     }
 
     public function getConfigRules() {

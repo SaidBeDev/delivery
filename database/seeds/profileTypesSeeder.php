@@ -21,10 +21,6 @@ class profileTypesSeeder extends Seeder
         ]);
 
         DB::table('profile_types')->insert([
-            'name' => 'client',
-        ]);
-
-        DB::table('profile_types')->insert([
             'name' => 'deliveryMan',
         ]);
     }

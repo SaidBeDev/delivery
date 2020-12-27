@@ -57,6 +57,9 @@ class UserController extends BackendBaseController
      */
     public function index()
     {
+        $info = [
+            'title' => $this->title
+        ];
 
         $data = [
             'list_users'  => $this->repository->whereHas('profile_type', function(Builder $query){
@@ -64,7 +67,7 @@ class UserController extends BackendBaseController
             })->with(['daira', 'profile_type', 'vehicle_type'])->all()
         ];
 
-        return view($this->base_view . 'index', ['data' => $data]);
+        return view($this->base_view . 'index', ['data' => $data, 'info' => $info]);
     }
 
     /**
@@ -75,6 +78,9 @@ class UserController extends BackendBaseController
      */
     public function create()
     {
+        $info = [
+            'title' => $this->title
+        ];
 
         $data = [
             'profile_types' => $this->repositories['ProfileTypesRepository']->scopeQuery(function($query) {
@@ -91,7 +97,7 @@ class UserController extends BackendBaseController
         ];
 
 
-        return view($this->base_view . 'create', ['data' => $data]);
+        return view($this->base_view . 'create', ['data' => $data, 'info' => $info]);
     }
 
     /**
@@ -144,6 +150,10 @@ class UserController extends BackendBaseController
      */
     public function edit($id)
     {
+        $info = [
+            'title' => $this->title
+        ];
+
         $data = [
             'userValidator'        => jsValidator::make($this->getUserRules()),
             'deliveryManValidator' => jsValidator::make($this->getDeliveryManRules()),
@@ -159,7 +169,7 @@ class UserController extends BackendBaseController
             })->all(),
         ];
 
-        return view($this->base_view . 'edit', ['data' => $data]);
+        return view($this->base_view . 'edit', ['data' => $data, 'info' => $info]);
     }
 
     /**

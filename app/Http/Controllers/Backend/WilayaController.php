@@ -36,12 +36,18 @@ class WilayaController extends BackendBaseController
      */
     public function index()
     {
-        $data = [
-            'list_wilayas'  => $this->repository->all(),
-            'list_services' => $this->repositories['ServiceRepository']->all()
+        $info = [
+            'title' => $this->title
         ];
 
-        return view($this->base_view . 'index', ['data' => $data]);
+        $data = [
+            'list_wilayas'  => $this->repository->all(),
+            'list_services' => $this->repositories['ServiceRepository']->all()->filter( function ($service) {
+                return $service->name != 'Livraison';
+            })
+        ];
+
+        return view($this->base_view . 'index', ['data' => $data, 'info' => $info]);
     }
     /**
      * Change price for a wilaya
@@ -94,7 +100,7 @@ class WilayaController extends BackendBaseController
      */
     public function addService(Request $request, $id) {
         $wilaya = $this->repository->find($id);
-        $status = $wilaya->services()->attach($request->service_id);
+        $wilaya->services()->attach($request->service_id);
 
         return response()->json([
             'success' => true,
@@ -108,14 +114,16 @@ class WilayaController extends BackendBaseController
      */
     public function deleteService(Request $request, $id) {
         $wilaya = $this->repository->find($id);
-        $wilaya->services()->detach($request->service_id);
 
-        return response()->json([
-            'success' => true,
-            'message' => trans('notifications.service_wilaya_deleted')
-        ]);
+        if(!$wilaya->services()->contains('id', $request->service_id)) {
+            $wilaya->services()->detach($request->service_id);
+
+            return response()->json([
+                'success' => true,
+                'message' => trans('notifications.service_wilaya_deleted')
+            ]);
+        }
     }
-
 
     /**
      * Show the form for creating a new resource.

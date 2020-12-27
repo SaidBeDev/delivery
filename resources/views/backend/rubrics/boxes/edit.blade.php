@@ -66,6 +66,7 @@
                     <div class="col-md-4">
                         <label for="">Service</label>
                         <select name="service_id" class="form-control selectpicker" >
+                            <option name="service_id" value="" selected>Non spécifié</option>
                             @foreach ($data['list_services'] as $service)
                                 <option name="service_id"  value="{{ $service->id }}"  {{ $box->service_id == $service->id ? 'selected' : '' }}>{{ $service->name }}</option>
                             @endforeach
